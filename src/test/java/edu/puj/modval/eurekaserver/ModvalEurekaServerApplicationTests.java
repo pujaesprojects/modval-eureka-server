@@ -1,4 +1,4 @@
-package edu.puj.modval.modvaleurekaserver;
+package edu.puj.modval.eurekaserver;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

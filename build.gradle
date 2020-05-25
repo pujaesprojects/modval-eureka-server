@@ -14,11 +14,6 @@ plugins {
 	id "com.google.cloud.tools.jib"
 	id 'io.spring.dependency-management' version "${spring_dependency_version}"
 	id "java"
-	id "maven-publish"
-	id "idea"
-	id "net.ltgt.apt-idea"
-	id "net.ltgt.apt"
-	id "io.spring.nohttp"
 }
 
 
@@ -29,35 +24,12 @@ sourceCompatibility = '11'
 
 assert System.properties["java.specification.version"] == "1.8" || "11" || "12" || "13"
 apply from: "gradle/docker.gradle"
-apply from: "gradle/profile_dev.gradle"
-
-checkstyle {
-	toolVersion "${checkstyle_version}"
-	configFile file("checkstyle.xml")
-	checkstyleTest.enabled = false
-}
-nohttp {
-	source.include "build.gradle", "README.md"
-}
-
-configurations {
-	providedRuntime
-	implementation.exclude module: "spring-boot-starter-tomcat"
-	all {
-		resolutionStrategy {
-
-		}
-	}
-}
-
-idea {
-
-}
+// apply from: "gradle/profile_dev.gradle"
 
 defaultTasks "bootRun"
 
 springBoot {
-	mainClassName = "edu.puj.modval.ms.AESApplication"
+	mainClassName = "edu.puj.modval.eurekaserver.ModvalEurekaServerApplication"
 }
 
 repositories {
@@ -84,6 +56,3 @@ task cleanResources(type: Delete) {
 test {
 	useJUnitPlatform()
 }
-
-compileJava.dependsOn processResources
-processResources.dependsOn bootBuildInfo
