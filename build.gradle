@@ -1,19 +1,66 @@
-plugins {
-	id 'org.springframework.boot' version '2.3.0.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'java'
+buildscript {
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		gradlePluginPortal()
+		maven { url "https://repo.spring.io/plugins-release" }
+	}
+	dependencies {
+	}
 }
+
+plugins {
+	id 'org.springframework.boot' version "${spring_boot_version}"
+	id "com.google.cloud.tools.jib"
+	id 'io.spring.dependency-management' version "${spring_dependency_version}"
+	id "java"
+	id "maven-publish"
+	id "idea"
+	id "net.ltgt.apt-idea"
+	id "net.ltgt.apt"
+	id "io.spring.nohttp"
+}
+
 
 group = 'edu.puj.modval'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
-repositories {
-	mavenCentral()
+assert System.properties["java.specification.version"] == "1.8" || "11" || "12" || "13"
+apply from: "gradle/docker.gradle"
+apply from: "gradle/profile_dev.gradle"
+
+checkstyle {
+	toolVersion "${checkstyle_version}"
+	configFile file("checkstyle.xml")
+	checkstyleTest.enabled = false
+}
+nohttp {
+	source.include "build.gradle", "README.md"
 }
 
-ext {
-	set('springCloudVersion', "Hoxton.SR4")
+configurations {
+	providedRuntime
+	implementation.exclude module: "spring-boot-starter-tomcat"
+	all {
+		resolutionStrategy {
+
+		}
+	}
+}
+
+idea {
+
+}
+
+defaultTasks "bootRun"
+
+springBoot {
+	mainClassName = "edu.puj.modval.ms.AESApplication"
+}
+
+repositories {
+	mavenCentral()
 }
 
 dependencies {
@@ -25,10 +72,17 @@ dependencies {
 
 dependencyManagement {
 	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring_cloud_version}"
 	}
+}
+
+task cleanResources(type: Delete) {
+	delete "build/resources"
 }
 
 test {
 	useJUnitPlatform()
 }
+
+compileJava.dependsOn processResources
+processResources.dependsOn bootBuildInfo
